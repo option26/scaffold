@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "A command line utility that scaffolds projects",
   "main": "index.js",
+  "files": ["dist/**/*"],
   "repository": "github:option26/scaffold",
+  "homepage": "https://github.com/option26/scaffold",
   "dependencies": {
     "inquirer": "^8.2.0",
     "nunjucks": "^3.2.3",
@@ -23,13 +25,16 @@
     "eslint-config-airbnb-base": "^14.2.1",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import": "^2.25.2",
+    "prettier": "^2.4.1",
     "typescript": "^4.4.4"
   },
   "bin": {
     "scaffold": "dist/index.js"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
+    "format": "prettier --write \"src/**/*.ts\""
   },
   "author": "Option 26 e.V.",
   "license": "AGPL-3.0"
