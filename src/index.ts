@@ -142,20 +142,20 @@ async function processFiles(
 }
 
 async function cleanUp(templateConfig: TemplateConfig, userConfig: any) {
-  const cleanUpJobs: Promise<void>[] = [];
-
   for (const entry of templateConfig.cleanup) {
     if (userConfig[entry.name] === entry.value) {
-      entry.paths.forEach((filePath) => {
-        console.info(
-          `Removing file ${filePath} because variable '${entry.name}' has value '${entry.value}'`,
-        );
-        cleanUpJobs.push(fs.rm(filePath, { recursive: true, force: true }));
-      });
+      for(const filePath of entry.paths) {
+        try {
+          console.info(
+            `Removing file ${filePath} because variable '${entry.name}' has value '${entry.value}'`,
+          );
+          await fs.rm(filePath, { recursive: true, force: true });
+        } catch (err) {
+          console.warn('Unable to delete file', filePath);
+        }
+      }
     }
   }
-
-  return Promise.all(cleanUpJobs);
 }
 
 async function preprocessVariables(

@@ -1,6 +1,6 @@
 {
   "name": "@option26/scaffold",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A command line utility that scaffolds projects",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
