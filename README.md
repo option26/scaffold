@@ -11,14 +11,16 @@ If you want to create a new project from a template, run the scaffold command: `
 - `source` can either be a relative or absolute path the template in your file system or alternatively a URL to a git repository.
 - `target` has to be a path (relative or absolute) to an empty folder in your filesystem.
 
-**Usage Examples**
-| `scaffold https://github.com/option26/template.git .` | Clones the repository from 'https://github.com/option26/template.git' and scaffolds the project to the current directory. |
-| `scaffold template/directory /full/target/directory` | Scaffolds the project from a template located at $CWD/template/directory to '/full/target/directory'. |
+### Usage Examples
+```
+scaffold https://github.com/option26/template.git .         // Clones the repository from 'https://github.com/option26/template.git' and scaffolds the project to the current directory.
+scaffold template/directory /full/target/directory          // Scaffolds the project from a template located at $CWD/template/directory to '/full/target/directory'.
+```
 
 ## Templating
 In order to create a template, simply add a `template.json` file to the root of your template project directory. This files specifies all the information for the templating process.
 
-**Structure**
+### Template Config
 The `template.json` file has the following structure:
 ```
 {
@@ -49,7 +51,7 @@ The `template.json` file has the following structure:
 }
 ```
 
-**Process**
+### Process
 The scaffolding process works as follows
 1. If the `source` is a git repository, clone it's content. Else, check if specified directory exists.
 2. Check if `target` directory exists and is empty
@@ -64,7 +66,7 @@ The scaffolding process works as follows
 6. For each entry in the `cleanup` array, check if the condition is true and if so, remove all specified paths from the target directory.
 7. If we cloned a template repository earlier, remove the temporary directory
 
-**Template Structure**
+### Template Structure
 Scaffold uses the [nunjucks templating language](https://mozilla.github.io/nunjucks/) to process files and paths in a project template.
 
 You can use templating inside file paths by simply naming the file with a valid nunjucks template string and the filename will be replaced later. This can also be done for the paths in `exclude`, `ignore` and `cleanup` in template config.
