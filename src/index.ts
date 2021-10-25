@@ -148,7 +148,7 @@ async function cleanUp(templateConfig: TemplateConfig, userConfig: any) {
     if (userConfig[entry.name] === entry.value) {
       entry.paths.forEach((filePath) => {
         console.info(
-          `Removing file ${filePath} because variable '${entry.name}'' has value '${entry.value}'`,
+          `Removing file ${filePath} because variable '${entry.name}' has value '${entry.value}'`,
         );
         cleanUpJobs.push(fs.rm(filePath, { recursive: true, force: true }));
       });
@@ -263,16 +263,17 @@ async function main() {
   let cleanSource: boolean = false;
   if (source.startsWith('https://')) {
     // Clone to temporary directory
-    console.info('Downloading template code from:', source);
+    const tmpDir = `/tmp/${uuid()}`;
+    console.info(`Downloading template code from ${source} to ${tmpDir}`);
 
     try {
-      sourceDir = await git().clone(source, `/tmp/${uuid()}`);
+      await git().clone(source, tmpDir);
+      sourceDir = tmpDir;
     } catch (err) {
       console.error('An error occurred while downloading the template:', err);
       process.exit(1);
     }
 
-    console.log(sourceDir);
     cleanSource = true;
   } else {
     // Resolve path if relative
