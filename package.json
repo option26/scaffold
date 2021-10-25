@@ -2,8 +2,11 @@
   "name": "@option26/scaffold",
   "version": "1.0.0",
   "description": "A command line utility that scaffolds projects",
-  "main": "index.js",
-  "files": ["dist/**/*"],
+  "main": "dist/index.js",
+  "types": "lib/index.d.ts",
+  "files": [
+    "dist/**/*"
+  ],
   "repository": "github:option26/scaffold",
   "homepage": "https://github.com/option26/scaffold",
   "dependencies": {
@@ -23,6 +26,7 @@
     "@typescript-eslint/parser": "^5.1.0",
     "eslint": "^7.32.0",
     "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-config-airbnb-typescript": "^14.0.1",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import": "^2.25.2",
     "prettier": "^2.4.1",
@@ -32,9 +36,15 @@
     "scaffold": "dist/index.js"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "echo \"Error: no test specified\" && exit 0",
+    "lint": "eslint ",
+    "format": "prettier --write \"src/**/*.ts\"",
     "build": "tsc",
-    "format": "prettier --write \"src/**/*.ts\""
+    "prepare": "npm run build",
+    "prepublishOnly": "npm test && npm run lint",
+    "preversion": "npm run lint",
+    "version": "npm run format && git add -A src",
+    "postversion": "git push && git push --tags"
   },
   "author": "Option 26 e.V.",
   "license": "AGPL-3.0"
