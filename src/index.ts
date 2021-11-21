@@ -12,6 +12,7 @@ import path from 'path';
 import fs from 'fs/promises';
 import { constants } from 'fs';
 import nunjucks from 'nunjucks';
+import { isText } from 'istextorbinary';
 
 import { TemplateConfig } from './models/TemplateConfig';
 
@@ -108,10 +109,18 @@ async function processFiles(
     const stats = await fs.stat(sourceFilePath);
 
     if (stats.isFile()) {
-      // Process file, then write to target directory
-      const contents = await fs.readFile(sourceFilePath, 'utf8');
+      // Check if file is text file
+      const fileBuffer = await fs.readFile(sourceFilePath);
+      if (!isText(sourceFilePath, fileBuffer))
+      {
+        // No text file, simply copy
+        await fs.writeFile(targetFilePath, fileBuffer);
+        continue;
+      }
 
-      // TODO: This fails due to undefined symbols in a specific file
+      // Process file, then write to target directory
+      const contents = fileBuffer.toString('utf-8');
+
       let parsedContents: string;
       if (
         templateConfig.ignore.some((ignoredPath) =>
