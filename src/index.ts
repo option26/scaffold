@@ -14,7 +14,7 @@ import { constants } from 'fs';
 import nunjucks from 'nunjucks';
 import { isText } from 'istextorbinary';
 
-import { TemplateConfig } from './models/TemplateConfig';
+import { PromptEntry, TemplateConfig } from './models/TemplateConfig';
 
 const excludeList = ['.git', 'node_modules'];
 
@@ -111,8 +111,7 @@ async function processFiles(
     if (stats.isFile()) {
       // Check if file is text file
       const fileBuffer = await fs.readFile(sourceFilePath);
-      if (!isText(sourceFilePath, fileBuffer))
-      {
+      if (!isText(sourceFilePath, fileBuffer)) {
         // No text file, simply copy
         await fs.writeFile(targetFilePath, fileBuffer);
         continue;
@@ -153,7 +152,7 @@ async function processFiles(
 async function cleanUp(templateConfig: TemplateConfig, userConfig: any) {
   for (const entry of templateConfig.cleanup) {
     if (userConfig[entry.name] === entry.value) {
-      for(const filePath of entry.paths) {
+      for (const filePath of entry.paths) {
         try {
           console.info(
             `Removing file ${filePath} because variable '${entry.name}' has value '${entry.value}'`,
@@ -185,8 +184,17 @@ async function preprocessVariables(
 
     let when: ((state: any) => boolean) | undefined;
     if (entry.promptIf) {
-      when = (state: any) =>
-        state[entry.promptIf!.name] === entry.promptIf?.value;
+      if (Array.isArray(entry.promptIf)) {
+        when = (state: any) => {
+          const promptEntry = entry.promptIf! as Array<PromptEntry>;
+          return promptEntry.every(({ name, value }) => state[name] === value);
+        };
+      } else {
+        when = (state: any) => {
+          const promptEntry = entry.promptIf! as PromptEntry;
+          return state[promptEntry.name] === promptEntry.value;
+        };
+      }
     }
 
     return {
