@@ -28,11 +28,11 @@ The `template.json` file has the following structure:
     name: string;
     // Template description (shown when scaffolding project).
     description: string;
-    // List of paths to be excluded (i.e not copied) from the template. By default, .git and node_modules are excluded.
+    // List of paths (globs allowed) to be excluded (i.e not copied) from the template. By default, **/.git and **/node_modules are excluded.
     exclude: string[];   
-    // List of paths to be ignored (i.e. copied but not parsed). Useful if a file contains nunjucks syntax.
+    // List of paths (globs allowed) to be ignored (i.e. copied but not parsed). Useful if a file contains nunjucks syntax.
     ignore: string[];
-    // For each entry, if variable 'name' has specified 'value', all 'paths' are deleted in the final project.
+    // For each entry, if variable 'name' has specified 'value', all 'paths' are deleted in the final project (no globs allowed).
     cleanup: Array<{            
         name: string,
         value: any,
@@ -74,6 +74,13 @@ You can use templating inside file paths by simply naming the file with a valid 
 Inside files, you can use the default nunjucks syntax including control statements and alike.
 
 The values passed to the nunjucks environment are based on the user input given earlier. As described, this can be configured by specifying entries in the `variables` property.
+
+### Git
+If you manage your template as a git repository, you might want to add `.gitignore` files. However, you might also want to template `.gitignore` files. As a result, there would be a naming conflict. You can resolve this as follows:
+
+1. Create a `.gitignore` file for your template repository just like you usually would.
+2. In your template config, add a new item to the `exclude` array: `**/.gitignore`
+3. Now, add the `.gitignore` files you want to template. In order to avoid a naming conflict, name them `.gitignore{{template}}`.
 
 ## Examples
 TODO

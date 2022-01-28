@@ -13,10 +13,12 @@ import fs from 'fs/promises';
 import { constants } from 'fs';
 import nunjucks from 'nunjucks';
 import { isText } from 'istextorbinary';
+import { isMatch as globMatch } from 'micromatch';
 
 import { PromptEntry, TemplateConfig } from './models/TemplateConfig';
 
-const excludeList = ['.git', 'node_modules'];
+const excludeList = ['**/.git', '**/node_modules'];
+const internalValues = { template: '' };
 
 async function processTemplateConfig(
   templateConfig: TemplateConfig,
@@ -92,8 +94,9 @@ async function processFiles(
 
     // Don't process excluded files
     if (
-      templateConfig.exclude.includes(sourceFilePath) ||
-      excludeList.includes(fileName)
+      [...templateConfig.exclude, ...excludeList].some((excludePath) =>
+        globMatch(sourceFilePath, excludePath),
+      )
     ) {
       console.info('Exclude file', sourceFilePath);
       continue;
@@ -122,9 +125,7 @@ async function processFiles(
 
       let parsedContents: string;
       if (
-        templateConfig.ignore.some((ignoredPath) =>
-          sourceFilePath.startsWith(ignoredPath),
-        )
+        templateConfig.ignore.some((ignorePath) => globMatch(sourceFilePath, ignorePath))
       ) {
         console.info(
           'File was copied but not processed (part of ignored files)',
@@ -170,6 +171,12 @@ async function preprocessVariables(
   variables: TemplateConfig['variables'],
 ): Promise<QuestionCollection<any>> {
   const questions = variables.map((entry) => {
+    if (entry.name === 'template') {
+      throw new Error(
+        'Bad parameter. Variable name "template" is reserved, please use a different name',
+      );
+    }
+
     let validate: ((input: any) => boolean) | undefined;
     if (entry.validation) {
       switch (true) {
@@ -232,8 +239,15 @@ async function processTemplate(sourceDir: string, targetDir: string) {
   console.info(`Description: ${templateConfig.description}`);
 
   // Get user input
-  const questions = await preprocessVariables(templateConfig.variables);
-  const userConfig = await inquirer.prompt(questions);
+  let questions;
+  try {
+    questions = await preprocessVariables(templateConfig.variables);
+  } catch (err) {
+    console.error('Unable to process variables:', err);
+    process.exit(1);
+  }
+  let userConfig = await inquirer.prompt(questions); // Get user data
+  userConfig = { ...userConfig, ...internalValues }; // If necessary, override internal values
   console.info('----------- Input complete, scaffolding now -----------');
 
   // Parse template config
